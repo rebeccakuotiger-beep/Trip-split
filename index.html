@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>旅伴分帳本</title>
+<style>
+:root{--bg:#f6f3ee;--card:#fff;--ink:#23201c;--mut:#7a7368;--line:#e8e2d8;--pri:#0f766e;--pri2:#e6f4f1;--pos:#0f766e;--neg:#c2410c;--warn:#fff4e5;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15171a;--card:#1e2125;--ink:#efece6;--mut:#9a958c;--line:#2e3237;--pri:#2dd4bf;--pri2:#16312e;--pos:#2dd4bf;--neg:#fb923c;--warn:#2b2417}}
+:root[data-theme="dark"]{--bg:#15171a;--card:#1e2125;--ink:#efece6;--mut:#9a958c;--line:#2e3237;--pri:#2dd4bf;--pri2:#16312e;--pos:#2dd4bf;--neg:#fb923c;--warn:#2b2417}
+*{box-sizing:border-box}
+html{scroll-padding-top:56px}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 -apple-system,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line);padding:10px 16px;display:flex;gap:8px;align-items:center;overflow-x:auto}
+header b{font-size:17px;margin-right:auto;white-space:nowrap}
+header a{color:var(--pri);text-decoration:none;font-size:13px;white-space:nowrap;padding:4px 10px;background:var(--pri2);border-radius:99px}
+main{max-width:640px;margin:0 auto;padding:16px}
+section{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:16px}
+h2{margin:0 0 12px;font-size:16px}
+label{display:block;font-size:12px;color:var(--mut);margin:10px 0 4px}
+input,select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:inherit}
+input:focus,select:focus{outline:2px solid var(--pri);outline-offset:-1px}
+button{font:inherit;border:0;border-radius:10px;padding:11px 16px;background:var(--pri);color:#fff;font-weight:600;cursor:pointer}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) button.p{color:#06201c}}
+button.g{background:var(--pri2);color:var(--pri)}
+.row{display:flex;gap:8px}.row>*{flex:1}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:6px 6px 6px 12px;background:var(--pri2);color:var(--pri);border-radius:99px;font-size:14px}
+.chip i{font-style:normal;cursor:pointer;width:20px;height:20px;line-height:20px;text-align:center;border-radius:50%;background:var(--card)}
+.seg{display:flex;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:3px;gap:3px}
+.seg button{background:transparent;color:var(--mut);padding:9px 6px;font-size:14px}
+.seg button.on{background:var(--pri);color:#fff}
+.who{display:flex;flex-wrap:wrap;gap:8px}
+.who label{margin:0;display:flex;align-items:center;gap:6px;color:var(--ink);font-size:14px;padding:7px 12px;border:1px solid var(--line);border-radius:99px;cursor:pointer}
+.who input{width:auto;margin:0}
+.who label:has(input:checked){background:var(--pri2);border-color:var(--pri)}
+.item{display:flex;gap:10px;padding:12px 0;border-top:1px solid var(--line)}
+.item:first-of-type{border-top:0}
+.ic{font-size:22px;width:36px;text-align:center}
+.mid{flex:1;min-width:0}.mid small{color:var(--mut);display:block}
+.amt{text-align:right;font-weight:700;white-space:nowrap}
+.amt small{display:block;font-weight:400;color:var(--mut)}
+.tag{font-size:11px;padding:1px 7px;border-radius:99px;background:var(--pri2);color:var(--pri);margin-left:4px}
+.tag.pe{background:var(--warn);color:var(--neg)}
+.del{background:none;color:var(--mut);padding:0 4px;font-size:18px}
+.big{display:flex;gap:8px;margin-bottom:12px}
+.big div{flex:1;background:var(--bg);border-radius:12px;padding:10px 12px}
+.big small{color:var(--mut);display:block;font-size:12px}.big b{font-size:19px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{font-size:12px;color:var(--mut);font-weight:500;text-align:right;padding:6px 4px}
+td{padding:9px 4px;border-top:1px solid var(--line);text-align:right}
+th:first-child,td:first-child{text-align:left}
+.pos{color:var(--pos);font-weight:700}.neg{color:var(--neg);font-weight:700}
+.pay{display:flex;align-items:center;gap:10px;padding:12px;border-radius:12px;background:var(--pri2);margin-top:8px}
+.pay b{font-size:16px}.pay .ar{color:var(--pri)}.pay .v{margin-left:auto;font-weight:700;font-size:17px}
+.empty{color:var(--mut);text-align:center;padding:18px 0;font-size:14px}
+.tools{display:flex;gap:8px;margin-top:12px}.tools button{flex:1}
+
+.nav{display:none;gap:8px}
+#toast{position:fixed;left:16px;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:20;background:var(--ink);color:var(--bg);padding:12px 14px;border-radius:12px;font-size:14px;display:none;max-width:608px;margin:0 auto}
+#dlg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:30;display:none;align-items:center;justify-content:center;padding:24px}
+#dlg>div{background:var(--card);border-radius:16px;padding:20px;max-width:340px;width:100%}
+.code{font-size:22px;letter-spacing:3px;font-weight:800;color:var(--pri)}
+</style>
+</head>
+<body>
+<header><b id="ttl">🧳 旅伴分帳本</b><span class="nav" id="nav"><a href="#m">成員</a><a href="#add">記一筆</a><a href="#log">明細</a><a href="#sum">結算</a></span></header>
+<main>
+<section id="blocked" style="display:none"><h2>🧳 旅伴分帳本</h2><p id="lp" style="margin:0 0 14px;color:var(--mut)">登入後即可建立旅程、用旅程碼邀請同行者一起記帳，各旅程資料互相獨立。</p><button class="p" id="gl" style="width:100%">使用 Google 帳號登入</button><p style="font-size:12px;color:var(--mut);margin:12px 0 0">若從 LINE、Instagram 等內建瀏覽器開啟無法登入，請改用 Safari 或 Chrome。</p></section>
+
+<div id="home" style="display:none">
+<section><h2>👋 <span id="hi">你好</span></h2><p style="margin:0;color:var(--mut);font-size:13px">以 Google 帳號登入。每個旅程各自獨立，只有輸入旅程碼的同行者才能一起編輯。</p><button class="g" id="so" style="margin-top:12px">登出</button></section>
+<section><h2>我的旅程</h2><div id="mine"></div></section>
+<section><h2>建立新旅程</h2>
+<label>旅程名稱</label><input id="tn" maxlength="20" placeholder="如：京都五日遊">
+<label>結算幣別</label><select id="tb"></select>
+<button class="p" id="mk" style="width:100%;margin-top:14px">建立並取得旅程碼</button></section>
+<section><h2>加入旅程</h2>
+<label>輸入同行者給你的旅程碼</label><input id="jc" maxlength="9" placeholder="XXXX-XXXX" style="text-transform:uppercase;letter-spacing:2px">
+<button class="p" id="jn" style="width:100%;margin-top:14px">加入</button></section>
+</div>
+
+<div id="trip" style="display:none">
+<section>
+<div class="row" style="align-items:center"><div style="flex:1 1 auto"><b id="tname"></b><small style="display:block;color:var(--mut);margin-top:2px">旅程碼</small><span class="code" id="tcode"></span></div>
+<button class="g" id="cc" style="flex:0 0 auto">複製邀請</button><button class="g" id="back" style="flex:0 0 auto">返回</button></div>
+<p id="ro" style="display:none;margin:12px 0 0;padding:8px 12px;border-radius:10px;background:var(--warn);color:var(--neg);font-size:13px">⚠ 你目前只有唯讀權限，請請發起人將你設為「Contributor／貢獻者」。</p>
+</section>
+
+<section id="m">
+<h2>① 成員與結算幣別</h2>
+<div class="row"><input id="nm" placeholder="輸入名字，如：小明" maxlength="12"><button class="p" id="addM" style="flex:0 0 auto">新增</button></div>
+<div class="chips" id="chips"></div>
+<label>結算幣別（最後統一換算成這個幣別）</label><select id="base"></select>
+<p id="baseHint" style="font-size:12px;color:var(--mut);margin:6px 0 0"></p>
+</section>
+
+<section id="add">
+<h2>② 記一筆消費</h2>
+<label>這筆錢是</label>
+<div class="seg" id="typeSeg"><button data-t="split" class="on">👥 大家分攤</button><button data-t="personal">🙋 個人支出</button></div>
+<label>項目</label><input id="desc" placeholder="如：民宿、晚餐、門票" maxlength="30">
+<div class="row">
+<div><label>金額</label><input id="amount" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0.00"></div>
+<div><label>幣別</label><select id="cur"></select></div>
+</div>
+<div id="rateBox" style="display:none"><label id="rateLbl"></label><input id="rate" type="number" inputmode="decimal" min="0" step="any"></div>
+<label>類別</label><select id="cat"><option>🍜 餐飲</option><option>🏨 住宿</option><option>🚗 交通</option><option>🎫 門票</option><option>🛍 購物</option><option>📦 其他</option></select>
+<label>誰付的錢</label><select id="payer"></select>
+<div id="whoBox"><label>誰要分攤（預設全選）</label><div class="who" id="who"></div></div>
+<p id="hint" style="font-size:12px;color:var(--mut);margin:10px 0 0"></p>
+<button class="p" id="save" style="width:100%;margin-top:14px">＋ 儲存這筆</button>
+</section>
+
+<section id="log"><h2>③ 消費明細</h2><div id="list"></div></section>
+
+<section id="sum"><h2>④ 結算總結</h2><div id="summary"></div>
+<div class="tools"><button class="g" id="copy">複製結算文字</button><button class="g" id="leave">離開旅程</button></div>
+<div class="tools"><button class="g" id="del" style="display:none">刪除整個旅程（所有人）</button></div>
+</section>
+</div>
+</main>
+<div id="toast"></div>
+<div id="dlg"><div><p id="dt" style="margin:0 0 16px"></p><div class="row"><button class="g" id="dn">取消</button><button class="p" id="dy">確定</button></div></div></div>
+
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import{getAuth,GoogleAuthProvider,signInWithPopup,signInWithRedirect,onAuthStateChanged,signOut}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import{getFirestore,doc,getDoc,setDoc,updateDoc,deleteDoc,collection,getDocs,onSnapshot,arrayUnion}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// ▼▼▼ 把 Firebase 控制台給你的設定貼在這裡（見 README.md 步驟 3）▼▼▼
+const firebaseConfig={
+  apiKey:"AIzaSyCyOG3urr9sEsr50t00Wqw2wfg5GH0-Zv4",
+  authDomain:"trip-split-rbk.firebaseapp.com",
+  projectId:"trip-split-rbk",
+  appId:"1:496428287801:web:605901dafef85a30fdcae8"
+};
+// ▲▲▲
+
+const configured=!firebaseConfig.apiKey.startsWith('貼上');
+const app=configured?initializeApp(firebaseConfig):null;
+const auth=configured?getAuth(app):null;
+const fdb=configured?getFirestore(app):null;
+const wrap=x=>({id:x.id,exists:x.exists(),data:()=>x.data()});
+const db={
+  doc:p=>{const r=doc(fdb,p);return{path:p,get:async()=>wrap(await getDoc(r)),set:d=>setDoc(r,d),update:d=>updateDoc(r,d),delete:()=>deleteDoc(r),onSnapshot:(n,e)=>onSnapshot(r,x=>n(wrap(x)),e)}},
+  collection:p=>{const c=collection(fdb,p);const w=q=>({docs:q.docs.map(wrap),size:q.size});return{get:async()=>w(await getDocs(c)),onSnapshot:(n,e)=>onSnapshot(c,q=>n(w(q)),e)}}
+};
+
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const CUR=[['TWD','新台幣'],['JPY','日圓'],['USD','美元'],['KRW','韓元'],['EUR','歐元'],['THB','泰銖'],['CNY','人民幣'],['HKD','港幣'],['GBP','英鎊'],['SGD','新加坡幣'],['MYR','馬幣'],['VND','越南盾'],['AUD','澳幣']];
+const DEF={TWD:1,JPY:0.21,USD:31,KRW:0.023,EUR:36,THB:0.9,CNY:4.3,HKD:4,GBP:41,SGD:24,MYR:7.2,VND:0.0012,AUD:20};
+const dec=c=>['JPY','KRW','VND'].includes(c)?0:2;
+const fmtC=(n,c)=>c+' '+(n/100).toLocaleString('zh-TW',{minimumFractionDigits:dec(c),maximumFractionDigits:dec(c)});
+let S={members:[],expenses:[],base:'TWD',name:'',owner:null};
+const fmt=c=>fmtC(c,S.base);
+const conv=e=>Math.round(e.cents*(e.cur&&e.cur!==S.base?e.rate:1));
+let me={id:null,name:''},canW=false,trip=null,unsubs=[],type='split',rates={},fresh=false,lastBase=null;
+const fmtCode=c=>c.slice(0,4)+'-'+c.slice(4);
+const norm=s=>s.toUpperCase().replace(/[^A-Z0-9]/g,'');
+const genCode=()=>{const a='ABCDEFGHJKMNPQRSTUVWXYZ23456789',r=new Uint8Array(8);crypto.getRandomValues(r);return[...r].map(x=>a[x%a.length]).join('')};
+let tt;function msg(t){const e=$('toast');e.textContent=t;e.style.display='block';clearTimeout(tt);tt=setTimeout(()=>e.style.display='none',3200)}
+function ask(t){return new Promise(r=>{$('dt').textContent=t;$('dlg').style.display='flex';$('dy').onclick=()=>{$('dlg').style.display='none';r(true)};$('dn').onclick=()=>{$('dlg').style.display='none';r(false)}})}
+async function copyText(t){try{await navigator.clipboard.writeText(t);return true}catch(e){try{const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();const ok=document.execCommand('copy');a.remove();return ok}catch(e2){return false}}}
+const tripRef=()=>db.doc('trips/'+trip);
+const mineRef=c=>db.doc('users/'+me.id+'/trips/'+c);
+
+function calc(){
+  const paid={},owe={},pers={};
+  S.members.forEach(m=>{paid[m]=0;owe[m]=0;pers[m]=0});
+  let total=0,shared=0;
+  S.expenses.forEach(e0=>{const e={...e0,cents:conv(e0)};
+    total+=e.cents;
+    if(e.type==='personal'){if(e.payer in pers)pers[e.payer]+=e.cents;return}
+    shared+=e.cents;
+    if(e.payer in paid)paid[e.payer]+=e.cents;
+    const w=(e.who||[]).filter(x=>x in owe);if(!w.length)return;
+    const base=Math.floor(e.cents/w.length);let rem=e.cents-base*w.length;
+    w.forEach(x=>{owe[x]+=base+(rem-->0?1:0)});
+  });
+  const bal={};S.members.forEach(m=>bal[m]=paid[m]-owe[m]);
+  const cr=[],dbt=[];
+  S.members.forEach(m=>{if(bal[m]>0)cr.push([m,bal[m]]);else if(bal[m]<0)dbt.push([m,-bal[m]])});
+  cr.sort((a,b)=>b[1]-a[1]);dbt.sort((a,b)=>b[1]-a[1]);
+  const tx=[];let i=0,j=0;
+  while(i<cr.length&&j<dbt.length){
+    const a=Math.min(cr[i][1],dbt[j][1]);
+    if(a>0)tx.push({from:dbt[j][0],to:cr[i][0],c:a});
+    cr[i][1]-=a;dbt[j][1]-=a;
+    if(cr[i][1]===0)i++;if(dbt[j][1]===0)j++;
+  }
+  return{paid,owe,pers,bal,tx,total,shared};
+}
+
+function render(){
+  if(!trip)return;
+  const pv=$('payer').value;
+  const un=new Set([...document.querySelectorAll('#who input:not(:checked)')].map(x=>x.value));
+  $('chips').innerHTML=S.members.length?S.members.map((m,i)=>`<span class="chip">${esc(m)}${canW?`<i data-rm="${i}">×</i>`:''}</span>`).join(''):'<div class="empty" style="width:100%">先新增至少 2 位成員</div>';
+  $('payer').innerHTML=S.members.map(m=>`<option>${esc(m)}</option>`).join('');
+  $('payer').value=S.members.includes(pv)?pv:(S.members.includes(me.name)?me.name:(S.members[0]||''));
+  $('who').innerHTML=S.members.map(m=>`<label><input type="checkbox" value="${esc(m)}" ${un.has(m)?'':'checked'}>${esc(m)}</label>`).join('');
+  $('whoBox').style.display=type==='split'?'':'none';
+  $('hint').textContent=type==='split'?'金額會平均分給勾選的人，付款人若沒勾選則視為替大家墊付。':'個人支出只記錄，不參與互相結算。';
+  $('ro').style.display=canW?'none':'block';$('save').disabled=!canW;$('addM').disabled=!canW;
+  $('base').value=S.base;$('base').disabled=!canW||S.expenses.length>0;
+  $('baseHint').textContent=S.expenses.length?'已有消費記錄，無法更改結算幣別':'';
+  $('del').style.display=S.owner&&S.owner===me.id?'':'none';
+  const L=[...S.expenses].reverse();
+  $('list').innerHTML=L.length?L.map(e=>`<div class="item"><div class="ic">${esc((e.cat||'📦').split(' ')[0])}</div><div class="mid"><b>${esc(e.desc)}</b><span class="tag ${e.type==='personal'?'pe':''}">${e.type==='personal'?'個人':'分攤'}</span><small>${esc(e.payer)} 付款${e.type==='split'?' · '+(e.who||[]).length+' 人分攤':''}</small></div><div class="amt">${fmtC(e.cents,e.cur||S.base)}${e.cur&&e.cur!==S.base?`<small>≈ ${fmt(conv(e))}</small>`:''}${e.type==='split'&&(e.who||[]).length?`<small>人均 ${fmt(Math.round(conv(e)/e.who.length))}</small>`:''}</div>${canW?`<button class="del" data-del="${esc(e.id)}">🗑</button>`:''}</div>`).join(''):'<div class="empty">還沒有消費記錄</div>';
+  const r=calc();
+  if(S.members.length<2){$('summary').innerHTML='<div class="empty">新增成員並記帳後，這裡會顯示結算結果</div>';return}
+  let h=`<div class="big"><div><small>總支出</small><b>${fmt(r.total)}</b></div><div><small>分攤總額</small><b>${fmt(r.shared)}</b></div><div><small>人均分攤</small><b>${fmt(Math.round(r.shared/S.members.length))}</b></div></div>`;
+  const bc={};S.expenses.forEach(e=>{const c=e.cur||S.base;bc[c]=(bc[c]||0)+e.cents});const bl=Object.keys(bc);
+  if(bl.length>1)h+=`<p style="font-size:12px;color:var(--mut);margin:0 0 12px">各幣別實際花費：${bl.map(c=>fmtC(bc[c],c)).join('、')}</p>`;
+  h+='<table><tr><th>成員</th><th>已墊付</th><th>應分攤</th><th>結餘</th></tr>';
+  S.members.forEach(m=>{const b=r.bal[m];h+=`<tr><td>${esc(m)}${r.pers[m]?`<br><small style="color:var(--mut)">個人 ${fmt(r.pers[m])}</small>`:''}</td><td>${fmt(r.paid[m])}</td><td>${fmt(r.owe[m])}</td><td class="${b>0?'pos':b<0?'neg':''}">${b>0?'+':''}${fmt(b)}</td></tr>`});
+  h+='</table><h2 style="margin:18px 0 0;font-size:15px">💸 誰該付給誰</h2>';
+  h+=r.tx.length?r.tx.map(t=>`<div class="pay"><b>${esc(t.from)}</b><span class="ar">➜</span><b>${esc(t.to)}</b><span class="v">${fmt(t.c)}</span></div>`).join(''):`<div class="empty">${S.expenses.length?'🎉 已經結清，沒有人需要轉帳':'暫無需要結算的款項'}</div>`;
+  h+='<p style="font-size:12px;color:var(--mut);margin:10px 0 0">結餘為正＝別人應還給他；為負＝他還需付給別人。轉帳方案已將筆數降到最少。所有結算金額以 '+S.base+' 計。</p>';
+  $('summary').innerHTML=h;
+}
+
+function setRate(){const c=$('cur').value,show=c!==S.base;$('rateBox').style.display=show?'':'none';
+  if(show){$('rateLbl').textContent=`匯率：1 ${c} = ? ${S.base}（預設為概略匯率，請依實際換匯為準）`;$('rate').value=+(rates[c]||DEF[c]/DEF[S.base]).toPrecision(5)}}
+
+function view(v){$('home').style.display=v==='home'?'':'none';$('trip').style.display=v==='trip'?'':'none';$('blocked').style.display=v==='blocked'?'':'none';$('nav').style.display=v==='trip'?'flex':'none'}
+function closeTrip(){unsubs.forEach(f=>{try{f()}catch(e){}});unsubs=[];trip=null}
+async function loadMine(){
+  try{
+    const q=await db.collection('users/'+me.id+'/trips').get();
+    const L=q.docs.map(d=>d.data()).filter(x=>x&&x.code).sort((a,b)=>(b.ts||0)-(a.ts||0));
+    $('mine').innerHTML=L.length?L.map(t=>`<div class="item"><div class="ic">🧳</div><div class="mid"><b>${esc(t.name)}</b><small>旅程碼 ${esc(fmtCode(t.code))}</small></div><button class="g" data-open="${esc(t.code)}">開啟</button></div>`).join(''):'<div class="empty">還沒有旅程，建立或加入一個吧</div>';
+  }catch(e){$('mine').innerHTML='<div class="empty">無法讀取旅程清單</div>'}
+}
+function openTrip(code){
+  closeTrip();trip=code;fresh=true;lastBase=null;S={members:[],expenses:[],base:'TWD',name:'',owner:null};
+  $('tcode').textContent=fmtCode(code);$('tname').textContent='載入中…';view('home');view('trip');window.scrollTo(0,0);
+  unsubs.push(tripRef().onSnapshot(s=>{
+    if(!s.exists){$('tname').textContent='此旅程不存在或已被刪除';S.members=[];S.expenses=[];render();return}
+    const d=s.data();S.name=d.name;S.base=d.base||'TWD';S.members=d.members||[];S.owner=d.owner;$('tname').textContent=d.name;
+    if(fresh){$('cur').value=S.base;fresh=false}
+    if(lastBase!==S.base){lastBase=S.base;rates={};if($('cur').value===undefined)$('cur').value=S.base;setRate()}
+    render();
+  },e=>msg('讀取失敗：'+e.message)));
+  unsubs.push(db.collection('trips/'+code+'/expenses').onSnapshot(q=>{S.expenses=q.docs.map(d=>d.data()).sort((a,b)=>(a.ts||0)-(b.ts||0));render()},e=>msg('讀取失敗：'+e.message)));
+}
+async function remember(code,name){try{await mineRef(code).set({code,name,ts:Date.now()})}catch(e){}}
+
+$('mk').onclick=async()=>{
+  const name=$('tn').value.trim()||'未命名旅程';
+  try{
+    for(let k=0;k<5;k++){
+      const code=genCode(),ref=db.doc('trips/'+code);
+      if((await ref.get()).exists)continue;
+      await ref.set({name,base:$('tb').value,members:me.name?[me.name]:[],owner:me.id,memberUids:[me.id],ts:Date.now()});
+      await remember(code,name);$('tn').value='';openTrip(code);msg('旅程已建立，請把旅程碼分享給同行者');return;
+    }
+    msg('產生旅程碼失敗，請再試一次');
+  }catch(e){msg('建立失敗：'+(canW?e.message:'你目前沒有編輯權限'))}
+};
+$('jn').onclick=async()=>{
+  const code=norm($('jc').value);
+  if(code.length!==8){msg('旅程碼是 8 碼英數字');return}
+  try{
+    const s=await db.doc('trips/'+code).get();
+    if(!s.exists){msg('找不到這個旅程碼，請確認後再試');return}
+    const d=s.data(),ms=d.members||[];
+    if(!(d.memberUids||[]).includes(me.id)){const up={memberUids:arrayUnion(me.id)};if(me.name&&!ms.includes(me.name))up.members=[...ms,me.name];await db.doc('trips/'+code).update(up)}
+    await remember(code,d.name);$('jc').value='';openTrip(code);
+  }catch(e){msg('加入失敗：'+e.message)}
+};
+$('mine').onclick=e=>{const c=e.target.dataset.open;if(c)openTrip(c)};
+$('back').onclick=()=>{closeTrip();view('home');loadMine()};
+$('cc').onclick=async()=>{
+  const ok=await copyText(`來加入「${S.name}」一起分帳！\n旅程碼：${fmtCode(trip)}\n打開「旅伴分帳本」→ 加入旅程 → 輸入旅程碼`);
+  msg(ok?'已複製邀請文字':'複製失敗，請直接把旅程碼 '+fmtCode(trip)+' 傳給同行者');
+};
+$('leave').onclick=async()=>{
+  if(!await ask('離開這個旅程？只會從你的清單移除，資料仍保留給其他人，之後可用旅程碼再加入。'))return;
+  try{await mineRef(trip).delete()}catch(e){}
+  closeTrip();view('home');loadMine();
+};
+$('del').onclick=async()=>{
+  if(!await ask('刪除整個旅程？所有成員與消費記錄都會消失，無法復原。'))return;
+  try{
+    const q=await db.collection('trips/'+trip+'/expenses').get();
+    for(const d of q.docs)await db.doc('trips/'+trip+'/expenses/'+d.id).delete();
+    await tripRef().delete();try{await mineRef(trip).delete()}catch(e){}
+    closeTrip();view('home');loadMine();msg('旅程已刪除');
+  }catch(e){msg('刪除失敗：'+e.message)}
+};
+$('addM').onclick=async()=>{
+  const v=$('nm').value.trim();if(!v||!canW)return;
+  if(S.members.includes(v)){msg('名字重複了，請加個區分，如「小明2」');return}
+  try{await tripRef().update({members:[...S.members,v]});$('nm').value=''}catch(e){msg('新增失敗：'+e.message)}
+};
+$('nm').onkeydown=e=>{if(e.key==='Enter')$('addM').click()};
+$('chips').onclick=async e=>{
+  const i=e.target.dataset.rm;if(i===undefined)return;const n=S.members[i];
+  if(S.expenses.some(x=>x.payer===n||(x.who||[]).includes(n))&&!await ask(`${n} 已有相關帳目，移除後將不計入結算，確定？`))return;
+  try{await tripRef().update({members:S.members.filter((_,k)=>k!=i)})}catch(e){msg('移除失敗：'+e.message)}
+};
+$('typeSeg').onclick=e=>{const t=e.target.dataset.t;if(!t)return;type=t;[...$('typeSeg').children].forEach(b=>b.classList.toggle('on',b.dataset.t===t));render()};
+$('cur').onchange=setRate;
+$('base').onchange=async()=>{try{await tripRef().update({base:$('base').value});$('cur').value=$('base').value}catch(e){msg('更改失敗：'+e.message);render()}};
+$('save').onclick=async()=>{
+  if(S.members.length<2){msg('請先新增至少 2 位成員');return}
+  const desc=$('desc').value.trim()||'未命名消費';
+  const cents=Math.round(parseFloat($('amount').value)*100);
+  if(!(cents>0)){msg('請輸入正確的金額');return}
+  const cur=$('cur').value;let rate=1;
+  if(cur!==S.base){rate=parseFloat($('rate').value);if(!(rate>0)){msg('請輸入正確的匯率');return}rates[cur]=rate}
+  const who=[...document.querySelectorAll('#who input:checked')].map(x=>x.value);
+  if(type==='split'&&!who.length){msg('請至少選擇一位分攤的人');return}
+  const id='e'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+  try{
+    await db.doc(`trips/${trip}/expenses/${id}`).set({id,ts:Date.now(),desc,cents,cur,rate,payer:$('payer').value,type,who:type==='split'?who:[],cat:$('cat').value,by:me.id});
+    $('desc').value='';$('amount').value='';$('log').scrollIntoView({behavior:'smooth'});
+  }catch(e){msg('儲存失敗：'+e.message)}
+};
+$('list').onclick=async e=>{
+  const id=e.target.dataset.del;if(!id)return;
+  if(await ask('刪除這筆記錄？')){try{await db.doc(`trips/${trip}/expenses/${id}`).delete()}catch(e){msg('刪除失敗：'+e.message)}}
+};
+$('copy').onclick=async()=>{
+  const r=calc();
+  let t=`【${S.name} 分帳結算】\n總支出 `+fmt(r.total)+'\n\n';
+  S.members.forEach(m=>t+=`${m}：墊付 ${fmt(r.paid[m])}，應分攤 ${fmt(r.owe[m])}\n`);
+  t+='\n轉帳方案：\n'+(r.tx.length?r.tx.map(x=>`${x.from} → ${x.to}  ${fmt(x.c)}`).join('\n'):'已結清');
+  msg((await copyText(t))?'已複製結算文字':'複製失敗，請手動截圖或選取文字');
+};
+
+const opts=CUR.map(c=>`<option value="${c[0]}">${c[0]} ${c[1]}</option>`).join('');
+$('base').innerHTML=opts;$('cur').innerHTML=opts;$('tb').innerHTML=opts;
+$('gl').onclick=async()=>{
+  const p=new GoogleAuthProvider();
+  try{await signInWithPopup(auth,p)}
+  catch(e){if(['auth/popup-blocked','auth/operation-not-supported-in-this-environment'].includes(e.code))signInWithRedirect(auth,p);else if(e.code!=='auth/popup-closed-by-user')msg('登入失敗：'+e.message)}
+};
+$('so').onclick=async()=>{closeTrip();await signOut(auth)};
+if(!configured){view('blocked');$('gl').style.display='none';$('lp').textContent='尚未設定 Firebase：請依 README.md 把 firebaseConfig 填進 index.html。'}
+else onAuthStateChanged(auth,u=>{
+  if(!u){closeTrip();view('blocked');return}
+  me={id:u.uid,name:(u.displayName||'').trim().slice(0,12)};canW=true;
+  $('hi').textContent=(me.name||'旅人')+'，歡迎回來';
+  view('home');loadMine();
+});
+</script>
+</body>
+</html>
